@@ -1,0 +1,117 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-space-blue text-white font-sans;
+    background-image: 
+      radial-gradient(circle at 20% 80%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+    background-attachment: fixed;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  .glass-effect {
+    @apply bg-white/5 backdrop-blur-md border border-white/10;
+  }
+  
+  .space-card {
+    @apply glass-effect rounded-xl p-6 hover:bg-white/10 transition-all duration-300;
+  }
+  
+  .cosmic-button {
+    @apply bg-gradient-to-r from-cosmic-pink to-nebula-cyan text-white font-semibold py-3 px-6 rounded-lg hover:shadow-lg hover:shadow-cosmic-pink/25 transition-all duration-300 transform hover:scale-105;
+  }
+  
+  .stellar-button {
+    @apply bg-gradient-to-r from-stellar-yellow to-mars-red text-white font-semibold py-3 px-6 rounded-lg hover:shadow-lg hover:shadow-stellar-yellow/25 transition-all duration-300 transform hover:scale-105;
+  }
+  
+  .earth-button {
+    @apply bg-gradient-to-r from-earth-green to-nebula-cyan text-white font-semibold py-3 px-6 rounded-lg hover:shadow-lg hover:shadow-earth-green/25 transition-all duration-300 transform hover:scale-105;
+  }
+  
+  .loading-shimmer {
+    @apply relative overflow-hidden bg-gray-700 rounded;
+  }
+  
+  .loading-shimmer::after {
+    @apply absolute inset-0 -translate-x-full;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.1),
+      transparent
+    );
+    animation: shimmer 2s infinite;
+    content: '';
+  }
+  
+  .floating-animation {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .pulse-slow {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-cosmic-pink to-nebula-cyan bg-clip-text text-transparent;
+  }
+  
+  .text-gradient-stellar {
+    @apply bg-gradient-to-r from-stellar-yellow to-mars-red bg-clip-text text-transparent;
+  }
+  
+  .text-gradient-earth {
+    @apply bg-gradient-to-r from-earth-green to-nebula-cyan bg-clip-text text-transparent;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-space-purple;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-cosmic-pink rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-nebula-cyan;
+}
+
+/* Selection styles */
+::selection {
+  @apply bg-cosmic-pink text-white;
+}
+
+::-moz-selection {
+  @apply bg-cosmic-pink text-white;
+} 
