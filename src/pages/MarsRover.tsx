@@ -41,7 +41,7 @@ const MarsRover = () => {
   }, [rover, roversData])
 
   // Fetch photos
-  const { data, isLoading, isFetching, error, refetch } = useQuery<any, Error>(
+  const { data, isFetching, error, refetch } = useQuery<any, Error>(
     ['marsRoverPhotos', rover, debouncedSol, earthDate, camera, page],
     () => {
       // Only pass sol or earthDate if they are non-empty

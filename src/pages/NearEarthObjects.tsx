@@ -12,7 +12,6 @@ const getNDaysAgo = (n: number) => {
   d.setDate(d.getDate() - n);
   return d.toISOString().split('T')[0];
 }
-const minDate = '1995-01-01';
 
 const NearEarthObjects = () => {
   const [startDate, setStartDate] = useState(getNDaysAgo(6))
@@ -51,15 +50,6 @@ const NearEarthObjects = () => {
     } finally {
       setLoading(false)
     }
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!startDate || !endDate) {
-      setError('Start and end date are required')
-      return
-    }
-    fetchNEO()
   }
 
   const handlePrev = () => setPage(p => Math.max(1, p - 1))
@@ -171,7 +161,6 @@ const NearEarthObjects = () => {
             </div>
             {/* Pagination UI (show total pages) */}
             {(() => {
-              const totalCount = allRows.length;
               const pageNum = page;
               return (
                 <div className="flex justify-center items-center space-x-4 mt-10">
