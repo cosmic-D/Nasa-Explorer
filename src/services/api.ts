@@ -11,13 +11,14 @@ import {
   DashboardData
 } from '../types/nasa';
 
-const API_BASE_URL = 'https://5484f7c93ecd.ngrok-free.app';
+const API_BASE_URL = 'https://5484f7c93ecd.ngrok-free.app/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
+    'ngrok-skip-browser-warning': '1'
   },
 });
 
@@ -49,6 +50,7 @@ export const nasaAPI = {
   // Dashboard - Get multiple data sources
   getDashboard: async (): Promise<DashboardData> => {
     const response = await api.get<APIResponse<DashboardData>>('/nasa/dashboard');
+
     return response.data.data;
   },
 
