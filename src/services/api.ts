@@ -11,7 +11,7 @@ import {
   DashboardData
 } from '../types/nasa';
 
-const API_BASE_URL = 'http://65.109.127.159:5000/api';
+const API_BASE_URL = 'https://5484f7c93ecd.ngrok-free.app';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
