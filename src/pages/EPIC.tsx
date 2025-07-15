@@ -29,10 +29,10 @@ const EPIC = () => {
         setData(res.data.data)
         setPage(1)
       } else {
-        setError(res.data.error || 'Failed to fetch data')
+        setError(res.data.error || 'Something went wrong. Please try again later.')
       }
     } catch (e: any) {
-      setError(e.message || 'Failed to fetch data')
+      setError(e.message || 'Something went wrong. Please try again later.')
     } finally {
       setLoading(false)
     }
