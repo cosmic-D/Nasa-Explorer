@@ -21,7 +21,7 @@ const Dashboard = () => {
     }
   )
 
-  const marsPhotos = dashboardData?.marsPhotos;
+  const marsRoverData = dashboardData?.marsRoverData;
 
   if (isLoading) {
     return (
@@ -164,12 +164,12 @@ const Dashboard = () => {
               </h2>
             </div>
             
-            {marsPhotos && marsPhotos.photos && marsPhotos.photos.length > 0 ? (
+            {marsRoverData && marsRoverData.photos && marsRoverData.photos.length > 0 ? (
               <div className="flex flex-col lg:flex-row gap-8 items-stretch">
                 {/* Photos Grid */}
                 <div className="flex-1 lg:max-h-[600px] lg:overflow-y-auto">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    {marsPhotos.photos.slice(0, 4).map((photo: MarsRoverPhoto) => (
+                    {marsRoverData.photos.slice(0, 4).map((photo: MarsRoverPhoto) => (
                       <motion.div
                         key={photo.id}
                         whileHover={{ scale: 1.05 }}
@@ -212,7 +212,7 @@ const Dashboard = () => {
                       <Pie
                         data={(() => {
                           const cameraCounts: { [key: string]: number } = {};
-                          marsPhotos.photos.forEach((photo: MarsRoverPhoto) => {
+                          marsRoverData.photos.forEach((photo: MarsRoverPhoto) => {
                             cameraCounts[photo.camera.name] = (cameraCounts[photo.camera.name] || 0) + 1;
                           });
                           return Object.entries(cameraCounts).map(([camera, count]) => ({
@@ -231,7 +231,7 @@ const Dashboard = () => {
                       >
                         {(() => {
                           const cameraCounts: { [key: string]: number } = {};
-                          marsPhotos.photos.forEach((photo: MarsRoverPhoto) => {
+                          marsRoverData.photos.forEach((photo: MarsRoverPhoto) => {
                             cameraCounts[photo.camera.name] = (cameraCounts[photo.camera.name] || 0) + 1;
                           });
                           return Object.entries(cameraCounts).map(([camera], index) => (
@@ -251,7 +251,7 @@ const Dashboard = () => {
                     </PieChart>
                   </ResponsiveContainer>
                   <div className="mt-4 text-center">
-                    <p className="text-sm text-gray-400">Total Photos: {marsPhotos.photos.length}</p>
+                    <p className="text-sm text-gray-400">Total Photos: {marsRoverData.photos.length}</p>
                     <p className="text-xs text-gray-500">Real data from NASA API</p>
                     <p className="text-xs text-gray-500">Rover: Curiosity</p>
                   </div>
@@ -260,8 +260,8 @@ const Dashboard = () => {
             ) : (
               <div className="text-center py-8">
                 <AlertTriangle className="w-12 h-12 text-gray-500 mx-auto mb-4" />
-                {typeof dashboardData?.errors?.marsPhotos === 'string' &&
-                  /rate limit|429/i.test(dashboardData.errors.marsPhotos) ? (
+                {typeof dashboardData?.errors?.marsRoverData === 'string' &&
+                  /rate limit|429/i.test(dashboardData.errors.marsRoverData) ? (
                   <>
                     <p className="text-lg text-mars-red font-semibold mb-2">NASA API Rate Limit Exceeded</p>
                     <p className="text-gray-400 mb-2">You've made too many requests to the NASA API. Please try again in a few minutes.</p>
@@ -269,8 +269,8 @@ const Dashboard = () => {
                   </>
                 ) : (
                   <p className="text-gray-400">
-                    {typeof dashboardData?.errors?.marsPhotos === 'string' && dashboardData.errors.marsPhotos
-                      ? dashboardData.errors.marsPhotos
+                    {typeof dashboardData?.errors?.marsRoverData === 'string' && dashboardData.errors.marsRoverData
+                      ? dashboardData.errors.marsRoverData
                       : 'Unable to load Mars rover photos'}
                   </p>
                 )}
