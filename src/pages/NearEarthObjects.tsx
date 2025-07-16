@@ -41,7 +41,7 @@ const NearEarthObjects = () => {
       setAllRows(all)
       setPage(1)
     } catch (e: any) {
-      setError(e.message || 'Something went wrong. Please try again later.')
+      setError('Something went wrong. Please try again later.')
     } finally {
       setLoading(false)
     }

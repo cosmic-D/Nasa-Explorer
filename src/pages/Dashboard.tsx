@@ -1,18 +1,16 @@
 import { useQuery } from 'react-query'
 import { motion } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
-import { Rocket, Camera, Search, AlertTriangle, Loader2 } from 'lucide-react'
+import { Rocket, Camera, Globe, AlertTriangle, Loader2 } from 'lucide-react'
 import { nasaAPI } from '../services/api'
 import { format } from 'date-fns'
+import { MarsRoverPhoto } from '../types/nasa'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Legend } from 'recharts'
 
 const Dashboard = () => {
   const { ref: apodRef, inView: apodInView } = useInView({ triggerOnce: true })
-  const { ref: nasaImagesRef, inView: nasaImagesInView } = useInView({ triggerOnce: true })
+  const { ref: marsRoverRef, inView: marsRoverInView } = useInView({ triggerOnce: true })
   const { ref: neoRef, inView: neoInView } = useInView({ triggerOnce: true })
-
-  // Get current date in YYYY-MM-DD format
-  const currentDate = format(new Date(), 'yyyy-MM-dd')
 
   const { data: dashboardData, isLoading, error } = useQuery(
     'dashboard',
@@ -23,10 +21,7 @@ const Dashboard = () => {
     }
   )
 
-  // Get NASA Images from dashboard data
-  const nasaImagesData = dashboardData?.nasaImages;
-  const nasaImagesLoading = isLoading;
-  const nasaImagesError = dashboardData?.errors?.nasaImages ? new Error(dashboardData.errors.nasaImages) : null;
+  const marsPhotos = dashboardData?.marsPhotos;
 
   if (isLoading) {
     return (
@@ -73,8 +68,8 @@ const Dashboard = () => {
               <span>Astronomy Picture of the Day</span>
             </div>
             <div className="flex items-center space-x-2 text-earth-green">
-              <Search className="w-5 h-5" />
-              <span>NASA Images & Videos</span>
+              <Globe className="w-5 h-5" />
+              <span>Mars Rover Photos</span>
             </div>
             <div className="flex items-center space-x-2 text-stellar-yellow">
               <Rocket className="w-5 h-5" />
@@ -153,115 +148,99 @@ const Dashboard = () => {
           </div>
         </motion.div>
 
-        {/* NASA Images Section */}
+        {/* Mars Rover Section */}
         <motion.div
-          ref={nasaImagesRef}
+          ref={marsRoverRef}
           initial={{ opacity: 0, y: 20 }}
-          animate={nasaImagesInView ? { opacity: 1, y: 0 } : {}}
+          animate={marsRoverInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5 }}
           className="mb-12"
         >
           <div className="space-card">
             <div className="flex items-center space-x-3 mb-6">
-              <Search className="w-6 h-6 text-earth-green" />
+              <Globe className="w-6 h-6 text-mars-red" />
               <h2 className="text-2xl font-space font-bold text-gradient-stellar">
-                NASA Images & Videos
+                Mars Rover Photos
               </h2>
             </div>
             
-            {nasaImagesLoading && (
-              <div className="text-center py-12">
-                <Loader2 className="w-12 h-12 text-earth-green animate-spin mx-auto mb-4" />
-                <p className="text-gray-400">Loading NASA images...</p>
-              </div>
-            )}
-
-            {nasaImagesError && (
-              <div className="text-center py-8">
-                <AlertTriangle className="w-12 h-12 text-gray-500 mx-auto mb-4" />
-                {nasaImagesError instanceof Error && /rate limit|429/i.test(nasaImagesError.message) ? (
-                  <>
-                    <p className="text-lg text-mars-red font-semibold mb-2">NASA API Rate Limit Exceeded</p>
-                    <p className="text-gray-400 mb-2">You've made too many requests to the NASA API. Please try again in a few minutes.</p>
-                    <a href="https://api.nasa.gov/contact/" target="_blank" rel="noopener noreferrer" className="underline text-cosmic-pink">Contact NASA API Support</a>
-                  </>
-                ) : (
-                  <p className="text-gray-400">
-                    {nasaImagesError instanceof Error ? String(nasaImagesError.message) : 'Unable to load NASA images'}
-                  </p>
-                )}
-              </div>
-            )}
-
-            {nasaImagesData && nasaImagesData.collection?.items && nasaImagesData.collection.items.length > 0 ? (
+            {marsPhotos && marsPhotos.photos && marsPhotos.photos.length > 0 ? (
               <div className="flex flex-col lg:flex-row gap-8 items-stretch">
-                {/* Images Grid */}
+                {/* Photos Grid */}
                 <div className="flex-1 lg:max-h-[600px] lg:overflow-y-auto">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    {nasaImagesData.collection.items.slice(0, 4).map((item) => {
-                      const imageData = item.data[0];
-                      const imageLink = item.links.find(link => link.render === 'image');
-                      const imageUrl = imageLink?.href || '';
-                      
-                      return (
-                        <motion.div
-                          key={item.href}
-                          whileHover={{ scale: 1.05 }}
-                          className="bg-white/5 rounded-lg overflow-hidden flex flex-col shadow-lg hover:shadow-xl transition-all duration-300"
-                        >
-                          <div className="relative">
-                            <img
-                              src={imageUrl}
-                              alt={imageData?.title || 'NASA Image'}
-                              className="w-full h-48 object-cover"
-                              onError={(e) => {
-                                // Fallback to a placeholder if image fails to load
-                                e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%23374151'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%239CA3AF' font-family='Arial' font-size='16'%3ENASA Image%3C/text%3E%3C/svg%3E";
-                              }}
-                            />
+                    {marsPhotos.photos.slice(0, 4).map((photo: MarsRoverPhoto) => (
+                      <motion.div
+                        key={photo.id}
+                        whileHover={{ scale: 1.05 }}
+                        className="bg-white/5 rounded-lg overflow-hidden flex flex-col shadow-lg hover:shadow-xl transition-all duration-300"
+                      >
+                        <div className="relative">
+                          <img
+                            src={photo.img_src}
+                            alt={photo.camera.full_name}
+                            className="w-full h-48 object-cover"
+                            onError={(e) => {
+                              // Fallback to a placeholder if image fails to load
+                              e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%23374151'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%239CA3AF' font-family='Arial' font-size='16'%3EMars Rover Photo%3C/text%3E%3C/svg%3E";
+                            }}
+                          />
+                        </div>
+                        <div className="p-4 flex-1 flex flex-col justify-between">
+                          <div>
+                            <p className="text-sm text-gray-300 font-medium">
+                              {photo.camera.full_name}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {photo.earth_date} (Sol {photo.sol})
+                            </p>
                           </div>
-                          <div className="p-4 flex-1 flex flex-col justify-between">
-                            <div>
-                              <p className="text-sm text-gray-300 font-medium">
-                                {imageData?.title || 'NASA Image'}
-                              </p>
-                              <p className="text-xs text-gray-500 mt-1">
-                                {imageData?.date_created ? format(new Date(imageData.date_created), 'MMM d, yyyy') : 'Unknown date'}
-                              </p>
-                            </div>
-                            <div className="mt-2 flex items-center space-x-2">
-                              <div className="w-2 h-2 bg-earth-green rounded-full"></div>
-                              <span className="text-xs text-gray-400">{imageData?.media_type || 'Image'}</span>
-                            </div>
+                          <div className="mt-2 flex items-center space-x-2">
+                            <div className="w-2 h-2 bg-mars-red rounded-full"></div>
+                            <span className="text-xs text-gray-400">{photo.rover.name}</span>
                           </div>
-                        </motion.div>
-                      )
-                    })}
+                        </div>
+                      </motion.div>
+                    ))}
                   </div>
                 </div>
                 {/* Chart */}
                 <div className="flex-1 flex flex-col justify-center items-center min-w-[250px]">
-                  <h3 className="text-lg font-semibold text-white mb-4 text-center">Media Distribution</h3>
+                  <h3 className="text-lg font-semibold text-white mb-4 text-center">Camera Distribution</h3>
                   <ResponsiveContainer width="100%" height={300} minWidth={250} minHeight={250}>
                     <PieChart>
                       <Pie
-                        data={[
-                          { name: "Images", value: nasaImagesData.collection.items.filter(item => item.data[0]?.media_type === 'image').length, color: "#00bcd4" },
-                          { name: "Videos", value: nasaImagesData.collection.items.filter(item => item.data[0]?.media_type === 'video').length, color: "#e91e63" }
-                        ]}
+                        data={(() => {
+                          const cameraCounts: { [key: string]: number } = {};
+                          marsPhotos.photos.forEach((photo: MarsRoverPhoto) => {
+                            cameraCounts[photo.camera.name] = (cameraCounts[photo.camera.name] || 0) + 1;
+                          });
+                          return Object.entries(cameraCounts).map(([camera, count]) => ({
+                            name: camera.toUpperCase(),
+                            value: count,
+                            color: `hsl(${Math.random() * 360}, 70%, 50%)`
+                          }));
+                        })()}
                         dataKey="value"
                         nameKey="name"
                         cx="50%"
                         cy="50%"
                         outerRadius={100}
-                        fill="#00bcd4"
+                        fill="#e91e63"
                         label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                       >
-                        <Cell fill="#00bcd4" />
-                        <Cell fill="#e91e63" />
+                        {(() => {
+                          const cameraCounts: { [key: string]: number } = {};
+                          marsPhotos.photos.forEach((photo: MarsRoverPhoto) => {
+                            cameraCounts[photo.camera.name] = (cameraCounts[photo.camera.name] || 0) + 1;
+                          });
+                          return Object.entries(cameraCounts).map(([camera], index) => (
+                            <Cell key={camera} fill={`hsl(${index * 60}, 70%, 50%)`} />
+                          ));
+                        })()}
                       </Pie>
                       <Tooltip 
-                        formatter={(value, name) => [`${value} items`, name]}
+                        formatter={(value, name) => [`${value} photos`, name]}
                         contentStyle={{ 
                           backgroundColor: '#1f2937', 
                           border: '1px solid #374151',
@@ -272,18 +251,31 @@ const Dashboard = () => {
                     </PieChart>
                   </ResponsiveContainer>
                   <div className="mt-4 text-center">
-                    <p className="text-sm text-gray-400">Total Items: {nasaImagesData.collection.items.length}</p>
+                    <p className="text-sm text-gray-400">Total Photos: {marsPhotos.photos.length}</p>
                     <p className="text-xs text-gray-500">Real data from NASA API</p>
-                    <p className="text-xs text-gray-500">Date: {currentDate}</p>
+                    <p className="text-xs text-gray-500">Rover: Curiosity</p>
                   </div>
                 </div>
               </div>
-            ) : !nasaImagesLoading && !nasaImagesError ? (
+            ) : (
               <div className="text-center py-8">
                 <AlertTriangle className="w-12 h-12 text-gray-500 mx-auto mb-4" />
-                <p className="text-gray-400">No NASA images found for {currentDate}</p>
+                {typeof dashboardData?.errors?.marsPhotos === 'string' &&
+                  /rate limit|429/i.test(dashboardData.errors.marsPhotos) ? (
+                  <>
+                    <p className="text-lg text-mars-red font-semibold mb-2">NASA API Rate Limit Exceeded</p>
+                    <p className="text-gray-400 mb-2">You've made too many requests to the NASA API. Please try again in a few minutes.</p>
+                    <a href="https://api.nasa.gov/contact/" target="_blank" rel="noopener noreferrer" className="underline text-cosmic-pink">Contact NASA API Support</a>
+                  </>
+                ) : (
+                  <p className="text-gray-400">
+                    {typeof dashboardData?.errors?.marsPhotos === 'string' && dashboardData.errors.marsPhotos
+                      ? dashboardData.errors.marsPhotos
+                      : 'Unable to load Mars rover photos'}
+                  </p>
+                )}
               </div>
-            ) : null}
+            )}
           </div>
         </motion.div>
 
