@@ -44,9 +44,19 @@ const MarsRover = () => {
   const { data, isFetching, error, refetch } = useQuery<any, Error>(
     ['marsRoverPhotos', rover, debouncedSol, earthDate, camera, page],
     () => {
-      // Only pass sol or earthDate if they are non-empty
-      const solParam = debouncedSol !== '' ? parseInt(debouncedSol) : undefined;
-      const earthDateParam = earthDate !== '' ? earthDate : undefined;
+      // Use default sol value if no sol or earthDate is provided
+      let solParam: number | undefined;
+      let earthDateParam: string | undefined;
+      
+      if (debouncedSol !== '') {
+        solParam = parseInt(debouncedSol);
+      } else if (earthDate !== '') {
+        earthDateParam = earthDate;
+      } else {
+        // Default sol value for initial load (Curiosity's recent sol)
+        solParam = 4000;
+      }
+      
       return nasaAPI.getMarsRoverPhotos(
         rover,
         solParam,

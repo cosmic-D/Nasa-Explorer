@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Camera, Loader2, AlertTriangle, ChevronLeft, ChevronRight } from 'lucide-react'
-import axios from 'axios'
+import { nasaAPI } from '../services/api'
 
 const getToday = () => {
   const d = new Date();
@@ -22,15 +22,9 @@ const EPIC = () => {
     setError('')
     setData([])
     try {
-      const params: any = { type }
-      if (date) params.date = date
-      const res = await axios.get('/api/nasa/epic', { params })
-      if (res.data.success) {
-        setData(res.data.data)
-        setPage(1)
-      } else {
-        setError(res.data.error || 'Something went wrong. Please try again later.')
-      }
+      const data = await nasaAPI.getEPICImages(date, type)
+      setData(data)
+      setPage(1)
     } catch (e: any) {
       setError(e.message || 'Something went wrong. Please try again later.')
     } finally {

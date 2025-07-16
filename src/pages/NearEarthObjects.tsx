@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Rocket, AlertTriangle, Loader2, ChevronLeft, ChevronRight } from 'lucide-react'
-import axios from 'axios'
+import { nasaAPI } from '../services/api'
 
 const getToday = () => {
   const d = new Date();
@@ -35,16 +35,11 @@ const NearEarthObjects = () => {
     setError('')
     setAllRows([])
     try {
-      const params: any = { start_date: startDate, end_date: endDate }
-      const res = await axios.get('/api/nasa/neo', { params })
-      if (res.data.success) {
-        // Flatten all NEOs into a single array
-        const all = Object.values(res.data.data.near_earth_objects).flat()
-        setAllRows(all)
-        setPage(1)
-      } else {
-        setError(res.data.error || 'Something went wrong. Please try again later.')
-      }
+      const data = await nasaAPI.getNearEarthObjects(startDate, endDate)
+      // Flatten all NEOs into a single array
+      const all = Object.values(data.near_earth_objects).flat()
+      setAllRows(all)
+      setPage(1)
     } catch (e: any) {
       setError(e.message || 'Something went wrong. Please try again later.')
     } finally {

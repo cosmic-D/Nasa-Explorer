@@ -1,15 +1,14 @@
 import { useQuery } from 'react-query'
 import { motion } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
-import { Rocket, Camera, Globe, AlertTriangle, Loader2 } from 'lucide-react'
+import { Rocket, Camera, Search, AlertTriangle, Loader2 } from 'lucide-react'
 import { nasaAPI } from '../services/api'
 import { format } from 'date-fns'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Legend } from 'recharts'
-import { EPICImage } from '../types/nasa'
 
 const Dashboard = () => {
   const { ref: apodRef, inView: apodInView } = useInView({ triggerOnce: true })
-  const { ref: epicRef, inView: epicInView } = useInView({ triggerOnce: true })
+  const { ref: nasaImagesRef, inView: nasaImagesInView } = useInView({ triggerOnce: true })
   const { ref: neoRef, inView: neoInView } = useInView({ triggerOnce: true })
 
   // Get current date in YYYY-MM-DD format
@@ -24,10 +23,10 @@ const Dashboard = () => {
     }
   )
 
-  // Get EPIC images from dashboard data
-  const epicData = dashboardData?.epicImages;
-  const epicLoading = isLoading;
-  const epicError = dashboardData?.errors?.epicImages ? new Error(dashboardData.errors.epicImages) : null;
+  // Get NASA Images from dashboard data
+  const nasaImagesData = dashboardData?.nasaImages;
+  const nasaImagesLoading = isLoading;
+  const nasaImagesError = dashboardData?.errors?.nasaImages ? new Error(dashboardData.errors.nasaImages) : null;
 
   if (isLoading) {
     return (
@@ -74,8 +73,8 @@ const Dashboard = () => {
               <span>Astronomy Picture of the Day</span>
             </div>
             <div className="flex items-center space-x-2 text-earth-green">
-              <Globe className="w-5 h-5" />
-              <span>EPIC Earth Images</span>
+              <Search className="w-5 h-5" />
+              <span>NASA Images & Videos</span>
             </div>
             <div className="flex items-center space-x-2 text-stellar-yellow">
               <Rocket className="w-5 h-5" />
@@ -154,33 +153,33 @@ const Dashboard = () => {
           </div>
         </motion.div>
 
-        {/* EPIC Section */}
+        {/* NASA Images Section */}
         <motion.div
-          ref={epicRef}
+          ref={nasaImagesRef}
           initial={{ opacity: 0, y: 20 }}
-          animate={epicInView ? { opacity: 1, y: 0 } : {}}
+          animate={nasaImagesInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5 }}
           className="mb-12"
         >
           <div className="space-card">
             <div className="flex items-center space-x-3 mb-6">
-              <Globe className="w-6 h-6 text-earth-green" />
+              <Search className="w-6 h-6 text-earth-green" />
               <h2 className="text-2xl font-space font-bold text-gradient-stellar">
-                EPIC Earth Images
+                NASA Images & Videos
               </h2>
             </div>
             
-            {epicLoading && (
+            {nasaImagesLoading && (
               <div className="text-center py-12">
                 <Loader2 className="w-12 h-12 text-earth-green animate-spin mx-auto mb-4" />
-                <p className="text-gray-400">Loading EPIC images...</p>
+                <p className="text-gray-400">Loading NASA images...</p>
               </div>
             )}
 
-            {epicError && (
+            {nasaImagesError && (
               <div className="text-center py-8">
                 <AlertTriangle className="w-12 h-12 text-gray-500 mx-auto mb-4" />
-                {epicError instanceof Error && /rate limit|429/i.test(epicError.message) ? (
+                {nasaImagesError instanceof Error && /rate limit|429/i.test(nasaImagesError.message) ? (
                   <>
                     <p className="text-lg text-mars-red font-semibold mb-2">NASA API Rate Limit Exceeded</p>
                     <p className="text-gray-400 mb-2">You've made too many requests to the NASA API. Please try again in a few minutes.</p>
@@ -188,51 +187,51 @@ const Dashboard = () => {
                   </>
                 ) : (
                   <p className="text-gray-400">
-                    {epicError instanceof Error ? String(epicError.message) : 'Unable to load EPIC images'}
+                    {nasaImagesError instanceof Error ? String(nasaImagesError.message) : 'Unable to load NASA images'}
                   </p>
                 )}
               </div>
             )}
 
-            {epicData && epicData.length > 0 ? (
+            {nasaImagesData && nasaImagesData.collection?.items && nasaImagesData.collection.items.length > 0 ? (
               <div className="flex flex-col lg:flex-row gap-8 items-stretch">
                 {/* Images Grid */}
                 <div className="flex-1 lg:max-h-[600px] lg:overflow-y-auto">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    {epicData?.slice(0, 4).map((image: EPICImage) => {
-                      // Construct image URL per NASA docs
-                      const d = image.date.split(' ')[0].replace(/-/g, '/')
-                      const url = `https://epic.gsfc.nasa.gov/archive/natural/${d}/png/${image.image}.png`
+                    {nasaImagesData.collection.items.slice(0, 4).map((item) => {
+                      const imageData = item.data[0];
+                      const imageLink = item.links.find(link => link.render === 'image');
+                      const imageUrl = imageLink?.href || '';
                       
                       return (
                         <motion.div
-                          key={image.identifier}
+                          key={item.href}
                           whileHover={{ scale: 1.05 }}
                           className="bg-white/5 rounded-lg overflow-hidden flex flex-col shadow-lg hover:shadow-xl transition-all duration-300"
                         >
                           <div className="relative">
                             <img
-                              src={url}
-                              alt={image.caption || image.image}
+                              src={imageUrl}
+                              alt={imageData?.title || 'NASA Image'}
                               className="w-full h-48 object-cover"
                               onError={(e) => {
                                 // Fallback to a placeholder if image fails to load
-                                e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%23374151'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%239CA3AF' font-family='Arial' font-size='16'%3EEarth from Space%3C/text%3E%3C/svg%3E";
+                                e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%23374151'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%239CA3AF' font-family='Arial' font-size='16'%3ENASA Image%3C/text%3E%3C/svg%3E";
                               }}
                             />
                           </div>
                           <div className="p-4 flex-1 flex flex-col justify-between">
                             <div>
                               <p className="text-sm text-gray-300 font-medium">
-                                {image.caption || image.image}
+                                {imageData?.title || 'NASA Image'}
                               </p>
                               <p className="text-xs text-gray-500 mt-1">
-                                {format(new Date(image.date), 'MMM d, yyyy HH:mm')}
+                                {imageData?.date_created ? format(new Date(imageData.date_created), 'MMM d, yyyy') : 'Unknown date'}
                               </p>
                             </div>
                             <div className="mt-2 flex items-center space-x-2">
                               <div className="w-2 h-2 bg-earth-green rounded-full"></div>
-                              <span className="text-xs text-gray-400">Earth from Space</span>
+                              <span className="text-xs text-gray-400">{imageData?.media_type || 'Image'}</span>
                             </div>
                           </div>
                         </motion.div>
@@ -242,12 +241,13 @@ const Dashboard = () => {
                 </div>
                 {/* Chart */}
                 <div className="flex-1 flex flex-col justify-center items-center min-w-[250px]">
-                  <h3 className="text-lg font-semibold text-white mb-4 text-center">Image Distribution</h3>
+                  <h3 className="text-lg font-semibold text-white mb-4 text-center">Media Distribution</h3>
                   <ResponsiveContainer width="100%" height={300} minWidth={250} minHeight={250}>
                     <PieChart>
                       <Pie
                         data={[
-                          { name: "Natural Color", value: epicData?.length || 0, color: "#00bcd4" }
+                          { name: "Images", value: nasaImagesData.collection.items.filter(item => item.data[0]?.media_type === 'image').length, color: "#00bcd4" },
+                          { name: "Videos", value: nasaImagesData.collection.items.filter(item => item.data[0]?.media_type === 'video').length, color: "#e91e63" }
                         ]}
                         dataKey="value"
                         nameKey="name"
@@ -258,9 +258,10 @@ const Dashboard = () => {
                         label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                       >
                         <Cell fill="#00bcd4" />
+                        <Cell fill="#e91e63" />
                       </Pie>
                       <Tooltip 
-                        formatter={(value, name) => [`${value} images`, name]}
+                        formatter={(value, name) => [`${value} items`, name]}
                         contentStyle={{ 
                           backgroundColor: '#1f2937', 
                           border: '1px solid #374151',
@@ -271,16 +272,16 @@ const Dashboard = () => {
                     </PieChart>
                   </ResponsiveContainer>
                   <div className="mt-4 text-center">
-                    <p className="text-sm text-gray-400">Total Images: {epicData?.length || 0}</p>
+                    <p className="text-sm text-gray-400">Total Items: {nasaImagesData.collection.items.length}</p>
                     <p className="text-xs text-gray-500">Real data from NASA API</p>
                     <p className="text-xs text-gray-500">Date: {currentDate}</p>
                   </div>
                 </div>
               </div>
-            ) : !epicLoading && !epicError ? (
+            ) : !nasaImagesLoading && !nasaImagesError ? (
               <div className="text-center py-8">
                 <AlertTriangle className="w-12 h-12 text-gray-500 mx-auto mb-4" />
-                <p className="text-gray-400">No EPIC images found for {currentDate}</p>
+                <p className="text-gray-400">No NASA images found for {currentDate}</p>
               </div>
             ) : null}
           </div>

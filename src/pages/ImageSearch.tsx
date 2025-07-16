@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Search, Loader2, AlertTriangle } from 'lucide-react'
-import axios from 'axios'
+import { nasaAPI } from '../services/api'
 
 const ImageSearch = () => {
   const [query, setQuery] = useState('Mars')
@@ -18,15 +18,16 @@ const ImageSearch = () => {
     setError('')
     setData(null)
     try {
-      const params: any = { q: query, media_type: mediaType, page: pageOverride || page }
-      if (yearStart) params.year_start = yearStart
-      if (yearEnd) params.year_end = yearEnd
-      const res = await axios.get('/api/nasa/search', { params })
-      if (res.data.success) {
-        setData(res.data.data)
-      } else {
-        setError(res.data.error || 'Something went wrong. Please try again later.')
-      }
+      const yearStartNum = yearStart ? parseInt(yearStart) : undefined
+      const yearEndNum = yearEnd ? parseInt(yearEnd) : undefined
+      const data = await nasaAPI.searchNASAImages(
+        query,
+        mediaType,
+        yearStartNum,
+        yearEndNum,
+        pageOverride || page
+      )
+      setData(data)
     } catch (e: any) {
       setError(e.message || 'Something went wrong. Please try again later.')
     } finally {

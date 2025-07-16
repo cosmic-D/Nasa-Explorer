@@ -210,11 +210,11 @@ export interface APIResponse<T> {
 
 export interface DashboardData {
   apod: APODResponse | null;
-  epicImages: EPICImage[] | null;
+  nasaImages: NASAImageSearchResult | null;
   neoData: NeoWsResponse | null;
   errors: {
     apod: string | null;
-    epicImages: string | null;
+    nasaImages: string | null;
     neoData: string | null;
   };
 } 
